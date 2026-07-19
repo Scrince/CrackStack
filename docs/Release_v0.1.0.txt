@@ -1,0 +1,85 @@
+CrackStack Harness v0.1.0 Release Notes
+=======================================
+
+Release date: 2026-07-09
+Refresh date: 2026-07-11
+
+Scope
+-----
+
+This is the first release-prep boundary for the portable local-first agentic
+LLM harness. It includes:
+
+- Portable root/path resolution and launchers.
+- GGUF and HuggingFace backend interfaces.
+- GGUF model discovery under models/.
+- Tool-call parsing and tool registry prompt injection.
+- Workspace-scoped filesystem tools with audit logging.
+- Self-modification guardrails with sandbox smoke tests and git snapshots.
+- Packaging tools for zip archives and PyInstaller executable builds.
+- Dry-run mode.
+- Doctor, config, tools, sessions, and rollback CLI commands.
+- PySide6 desktop GUI for model selection, doctor output, tool listing, and
+  chat prompting.
+- JSONL local conversation transcripts and tool-call logs.
+
+Refresh Notes
+-------------
+
+The 2026-07-11 refresh adds:
+
+- GUI generation settings for context size, GPU layers, max tokens,
+  temperature, dry-run mode, and self-modification enablement.
+- GUI saved-session picker and transcript loading.
+- GUI stop/cancel handling for long-running local generations.
+- More robust tool-call parsing for nested JSON arguments.
+- Configurable filesystem safety limits for text reads and search result
+  counts.
+- Tests covering cancellation, nested tool-call parsing, and filesystem safety
+  limits.
+
+Known External Runtime Requirements
+-----------------------------------
+
+The Windows drive install now includes a bundled Python 3.12 runtime and core
+runtime dependencies:
+
+- llama-cpp-python for GGUF execution.
+- transformers/accelerate/safetensors/torch for HuggingFace-format model
+  loading.
+- PyInstaller for executable-building from inside the harness.
+- PySide6 for the desktop GUI.
+
+Other platform folders remain placeholders until populated:
+
+- runtime/python/macos-arm64/
+- runtime/python/linux-x64/
+
+Models are intentionally excluded from source control and release checksums.
+Place .gguf files under models/.
+
+Expected Windows readiness before adding a model:
+
+  .\run.ps1 doctor
+
+The doctor output should show bundled Python, llama-cpp-python, transformers,
+and PyInstaller as ok, with only model-related checks missing.
+
+Verification
+------------
+
+Run from the repository root:
+
+  python tests\run_smoke_tests.py
+  python -m harness.cli doctor
+  python -m harness.cli tools list
+  python -m harness.cli gui
+
+Release signing follows the YellowSphere-style pattern:
+
+- Detached ASCII-armored PGP signatures live next to signed artifacts.
+- docs/SHA256SUMS records release artifact hashes.
+- docs/SHA256SUMS.asc signs the checksum manifest.
+- docs/CrackStack_Release_Signing_2026_pubkey.asc contains the public PGP key.
+- docs/CrackStack_Local_Code_Signing_2026.cer contains the local code-signing
+  certificate used for Authenticode signing when available.

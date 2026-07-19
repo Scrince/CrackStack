@@ -1,0 +1,18 @@
+[model]
+backend = "gguf"
+path = "models/qwen2.5-coder-14b-instruct-q4_k_m.gguf"
+context_size = 6656
+gpu_layers = 24
+temperature = 0.7
+max_tokens = 384
+
+[workspace]
+root = "workspace"
+
+[safety]
+self_modify = false
+sandbox = true
+allow_outside_workspace = false
+dry_run = false
+max_file_bytes = 1000000
+max_search_matches = 200

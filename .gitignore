@@ -1,0 +1,31 @@
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Large local model binaries must never enter self-modification history.
+models/*
+!models/.gitkeep
+
+# Portable runtime/dependency payloads are generated or vendored per host.
+runtime/python/*/*
+runtime/site-packages/*/*
+runtime/wheels/*/*
+!runtime/python/*/.gitkeep
+!runtime/site-packages/*/.gitkeep
+!runtime/wheels/*/.gitkeep
+
+# Local state stays on the removable drive but out of source history.
+logs/*
+state/*
+workspace/*
+generated/*
+!logs/.gitkeep
+!state/.gitkeep
+!workspace/.gitkeep
+!generated/.gitkeep
+
+# Local release private keys and certificate private-key containers.
+.gnupg-release/

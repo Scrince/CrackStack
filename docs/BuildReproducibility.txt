@@ -1,0 +1,73 @@
+CrackStack Harness - Build Reproducibility Notes
+================================================
+
+v0.1.0 release-prep boundary (2026-07-09)
+-----------------------------------------
+
+Refresh boundary: 2026-07-11. This refresh keeps the v0.1.0 artifact layout
+and release-signing key, while adding GUI settings/session controls,
+cancellation handling, safer filesystem limits, and more robust tool-call
+parsing.
+
+The release-prep build is performed from the repository root on Windows with
+Python 3.14. The source tree is a portable Python package with root launchers.
+The bundled Windows runtime is Python 3.12.13 from the Astral-maintained
+python-build-standalone release 20260623:
+
+  cpython-3.12.13+20260623-x86_64-pc-windows-msvc-install_only_stripped.tar.gz
+
+Runtime packages installed into runtime/python/windows-x64 include:
+
+  llama-cpp-python 0.3.16
+  transformers 5.13.0
+  torch 2.13.0+cpu
+  accelerate 1.14.0
+  safetensors 0.8.0
+  PySide6 6.11.1
+  PyInstaller 6.21.0
+
+Expected verification commands:
+
+  python tests\run_smoke_tests.py
+  python -m compileall harness tests
+  python -m harness.cli --help
+  python -m harness.cli doctor
+  python -m harness.cli tools list
+  python -m harness.cli config show
+
+Windows executable build command:
+
+  python -m PyInstaller --onefile --name crackstack-harness --distpath releases\windows --workpath generated\pyinstaller-build --specpath generated\pyinstaller-spec scripts\crackstack_harness_entry.py
+  python -m PyInstaller --onefile --windowed --name crackstack-harness-gui --distpath releases\windows --workpath generated\pyinstaller-build-gui --specpath generated\pyinstaller-spec-gui scripts\crackstack_harness_gui_entry.py
+
+The CLI executable accepts normal command-line subcommands. The GUI executable
+is windowed and is intended for double-click use. The portable launcher scripts
+and bundled runtime layout remain the normative portable-drive execution path.
+
+Release artifact verification:
+
+  gpg --show-keys docs\CrackStack_Release_Signing_2026_pubkey.asc
+  gpg --verify docs\SHA256SUMS.asc docs\SHA256SUMS
+  gpg --verify releases\windows\crackstack-harness.exe.asc releases\windows\crackstack-harness.exe
+  gpg --verify releases\windows\crackstack-harness-gui.exe.asc releases\windows\crackstack-harness-gui.exe
+
+Release signing key fingerprint:
+
+  FB1B 27B8 8818 C13A DFF5 0BAE 7D20 C384 A0A9 0F16
+
+Release signing is performed from the local release keyring:
+
+  gpg --homedir .gnupg-release --armor --detach-sign <artifact>
+  gpg --homedir .gnupg-release --armor --detach-sign docs\SHA256SUMS
+
+Local code-signing certificate thumbprint:
+
+  9E842E035E0FDF30BE7D8CDEC8E4EBB59C6C7725
+
+Checksum verification:
+
+  Get-Content docs\SHA256SUMS
+  Get-FileHash -Algorithm SHA256 <artifact>
+
+Models, runtime payloads, generated state, logs, and local private keys are not
+part of the source release checksum boundary.

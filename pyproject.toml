@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "crackstack-harness"
+version = "0.1.0"
+description = "Portable local-first agentic LLM harness."
+requires-python = ">=3.11"
+dependencies = []
+
+[project.optional-dependencies]
+gguf = ["llama-cpp-python>=0.2.90"]
+transformers = ["transformers>=4.42", "accelerate>=0.31", "safetensors>=0.4"]
+test = ["pytest>=8"]
+
+[project.scripts]
+harness = "harness.cli:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
