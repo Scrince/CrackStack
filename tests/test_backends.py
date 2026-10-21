@@ -5,7 +5,8 @@ from harness.config import ModelConfig
 from harness.backends.gguf import GGUFBackend
 
 
-def test_backend_requires_model_path():
+def test_backend_requires_model_path(monkeypatch, tmp_path):
+    monkeypatch.setenv("CRACKSTACK_ROOT", str(tmp_path))
     try:
         create_backend(ModelConfig(path=""))
     except ValueError as exc:

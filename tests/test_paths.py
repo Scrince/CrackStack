@@ -32,7 +32,18 @@ def test_no_absolute_path_resolution(monkeypatch, tmp_path):
 def test_copy_to_new_root_still_discovers_files(tmp_path):
     source = Path.cwd()
     target = tmp_path / "MovedHarness"
-    ignore = shutil.ignore_patterns(".git", ".pytest_cache", "__pycache__")
+    ignore = shutil.ignore_patterns(
+        ".git",
+        ".pytest_cache",
+        "__pycache__",
+        ".tmp",
+        "generated",
+        "logs",
+        "models",
+        "releases",
+        "runtime",
+        "state",
+    )
     shutil.copytree(source, target, ignore=ignore)
 
     model_dir = target / "models"
