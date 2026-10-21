@@ -1,3 +1,10 @@
+# CrackStack harness configuration (paths relative to harness root).
+# GPU / context presets are documented in README.md — examples:
+#   CPU-only 14B Q4: context_size=4096, gpu_layers=0, max_tokens=384
+#   8–12 GB VRAM:    context_size=6656, gpu_layers=24, max_tokens=512
+#   16+ GB VRAM:     context_size=16384, gpu_layers=-1, max_tokens=1024
+# GUI settings (context, GPU layers, max tokens, dry-run) save back here.
+
 [model]
 backend = "gguf"
 path = "models/qwen2.5-coder-14b-instruct-q4_k_m.gguf"
@@ -13,6 +20,7 @@ root = "workspace"
 self_modify = false
 sandbox = true
 allow_outside_workspace = false
+# dry_run: when true, write/delete/rename/patch/zip/build/self-mod tools report plans only
 dry_run = false
 max_file_bytes = 1000000
 max_search_matches = 200

@@ -5,7 +5,12 @@ from dataclasses import dataclass, field
 
 from harness.backends.base import GenerateConfig, Message, ModelBackend
 from harness.core.context import ContextManager
-from harness.core.tool_calls import observation_message, parse_tool_call
+from harness.core.tool_calls import (
+    looks_like_tool_attempt,
+    observation_message,
+    parse_tool_call,
+    repair_observation_message,
+)
 from harness.storage.sessions import ConversationStore
 from harness.tools.registry import ToolRegistry
 
@@ -48,6 +53,7 @@ class Conversation:
         self.messages.append({"role": "user", "content": prompt})
         if self.store is not None:
             self.store.append_message(self.messages[-1])
+        parse_repair_offered = False
         for _ in range(self.max_tool_steps + 1):
             if self._canceled():
                 return "Stopped: canceled."
@@ -69,6 +75,23 @@ class Conversation:
                 self.store.append_message(self.messages[-1])
             call = parse_tool_call(response.text)
             if call is None or self.tools is None:
+                if (
+                    call is None
+                    and self.tools is not None
+                    and not parse_repair_offered
+                    and looks_like_tool_attempt(response.text)
+                ):
+                    parse_repair_offered = True
+                    if self.tool_observer is not None:
+                        self.tool_observer("parse_error", "invalid tool JSON; requesting repair")
+                    tool_message = {
+                        "role": "tool",
+                        "content": repair_observation_message(),
+                    }
+                    self.messages.append(tool_message)
+                    if self.store is not None:
+                        self.store.append_message(tool_message)
+                    continue
                 return response.text
             if self.tool_observer is not None:
                 self.tool_observer("call", f"{call.name}({call.arguments})")

@@ -875,6 +875,10 @@ class HarnessWindow(QMainWindow):
         body.addWidget(self.temperature_spin, 7, 1)
 
         self.dry_run_check = QCheckBox("Dry run (no writes)")
+        self.dry_run_check.setToolTip(
+            "Preview write/delete/zip/build/self-mod tool actions without applying them. "
+            "Saved to config.toml as safety.dry_run when you Save & reload model."
+        )
         self.self_modify_check = QCheckBox("Self-modify tools")
         body.addWidget(self.dry_run_check, 8, 0, 1, 2)
         body.addWidget(self.self_modify_check, 9, 0, 1, 2)
