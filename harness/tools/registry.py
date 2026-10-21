@@ -84,7 +84,6 @@ def coerce_tool_arguments(
     result: dict[str, Any] = {}
     for key, raw in arguments.items():
         if key not in properties:
-            # Unexpected keys are rejected by the signature check as well; keep strict.
             raise ValueError(f"unexpected parameter: {key}")
         result[key] = raw
 
@@ -128,7 +127,6 @@ class Tool:
             unexpected = set(validated) - accepted
             if unexpected:
                 return ToolResult.error(f"unexpected parameters: {sorted(unexpected)}")
-            # Drop keys not accepted by the callable (defaults already applied for accepted ones).
             call_args = {key: value for key, value in validated.items() if key in accepted}
             return ToolResult.success(self.func(**call_args))
         except Exception as exc:

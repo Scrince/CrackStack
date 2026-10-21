@@ -73,6 +73,27 @@ max_search_matches = 200
 `max_search_matches` limits regex search output so large workspaces do not
 overwhelm the prompt.
 
+### GPU / context presets
+
+Suggested starting points (adjust after `.\run.ps1 doctor` and a short chat).
+VRAM notes assume a ~14B Q4 GGUF; smaller models leave more room for context.
+
+| Preset | `context_size` | `gpu_layers` | `max_tokens` | Notes |
+|--------|----------------|--------------|--------------|-------|
+| CPU-only | 4096 | 0 | 384–512 | Slowest; safest default without a GPU wheel. |
+| 8–12 GB VRAM | 6656 | 16–24 | 512 | Matches the Vulkan/CUDA installer default (`gpu_layers = 24`). Lower layers if load fails. |
+| 16+ GB VRAM | 8192–16384 | 24 or `-1` | 512–1024 | `-1` tries full offload. Raise context only if RAM/VRAM allows. |
+| Long context | 16384–32768 | as above | 512–1024 | Needs more system RAM for KV cache; use GUI context presets or `context_size`. |
+
+`max_tokens` caps **completion** length per generation step (not the full
+window). For multi-step tool use, 512 is a good default; 384 is fine on tight
+VRAM; 1024 helps long patches when the context window can hold them.
+
+The desktop GUI **Settings** panel (context preset/slider, GPU layers, max
+tokens, temperature, dry-run, self-modify) writes the same keys back to
+`config.toml` when you click **Save & reload model**. Disk layout and what you
+can delete are covered in [`docs/DISK_FOOTPRINT.md`](docs/DISK_FOOTPRINT.md).
+
 ## GPU Acceleration
 
 The portable Windows runtime can be converted from the CPU-only
@@ -234,6 +255,10 @@ actions:
 .\run.ps1 run --dry-run "edit workspace notes without writing"
 ```
 
+In the desktop GUI, enable **Dry run (no writes)** under Settings and click
+**Save & reload model** so the choice is written to `config.toml` as
+`safety.dry_run = true` (and reloaded for the next conversation).
+
 In dry-run mode, filesystem writes, deletes, renames, patch edits, archive
 creation, executable builds, and self-modification installs report planned
 changes without applying them.
@@ -315,3 +340,7 @@ Get-AuthenticodeSignature releases\windows\crackstack-harness.exe
 The Authenticode certificate is local/self-signed, so Windows will report an
 untrusted root unless you explicitly trust `docs/CrackStack_Local_Code_Signing_2026.cer`.
 Use the PGP signature and SHA-256 manifest as the portable verification path.
+
+## Windows installer
+
+See [Windows installer and signature verification](docs/WINDOWS_INSTALLER.md) for the download path and verification steps.

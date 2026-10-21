@@ -17,8 +17,6 @@ class SandboxResult:
     stderr: str
 
 
-# Generated tool modules must not reach OS/process/network APIs directly.
-# Workspace I/O belongs to harness filesystem tools, not plugin code.
 _FORBIDDEN_MODULES = frozenset(
     {
         "os",
@@ -100,7 +98,6 @@ def analyze_tool_source(source: str) -> list[str]:
             if node.attr.startswith("__") and node.attr.endswith("__"):
                 if node.attr in {"__import__", "__builtins__", "__loader__", "__spec__"}:
                     issues.append(f"forbidden attribute: {node.attr}")
-    # De-duplicate while preserving order
     seen: set[str] = set()
     unique: list[str] = []
     for item in issues:
@@ -119,7 +116,6 @@ def _restricted_env(root: Path) -> dict[str, str]:
         "PYTHONDONTWRITEBYTECODE": "1",
         "PYTHONSAFEPATH": "1",
     }
-    # Preserve only what the interpreter needs to start.
     for key in ("PATH", "SYSTEMROOT", "WINDIR", "SystemRoot", "TEMP", "TMP", "TMPDIR", "HOME", "USERPROFILE"):
         value = os.environ.get(key)
         if value:
