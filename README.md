@@ -344,6 +344,12 @@ The Authenticode certificate is local/self-signed, so Windows will report an
 untrusted root unless you explicitly trust `docs/CrackStack_Local_Code_Signing_2026.cer`.
 Use the PGP signature and SHA-256 manifest as the portable verification path.
 
+## Security
+
+Read the [Security Policy](SECURITY.md) for vulnerability reporting and user
+guidance, and the [Threat Model](THREAT_MODEL.md) for trust boundaries,
+implemented controls, and known limitations.
+
 ## Windows installer
 
 See [Windows installer and signature verification](docs/WINDOWS_INSTALLER.md) for the download path and verification steps.
