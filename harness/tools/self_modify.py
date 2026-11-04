@@ -98,7 +98,18 @@ class SelfModifyTools:
             self.history.snapshot(f"rollback failed self-edit {module_name}")
             raise RuntimeError(f"sandbox rejected tool module:\n{sandbox.stderr or sandbox.stdout}")
 
-        load_tool_module(target, self.registry)
+        previous_tools = self.registry._tools.copy()
+        try:
+            load_tool_module(target, self.registry)
+        except Exception as exc:
+            self.registry._tools = previous_tools
+            if original:
+                atomic_write_text(target, original)
+            else:
+                target.unlink(missing_ok=True)
+            self.history.snapshot(f"rollback failed self-edit {module_name}")
+            raise RuntimeError(f"tool registration failed; changes rolled back: {exc}") from exc
+
         after = self.history.snapshot(f"post self-edit {module_name}")
         before_rev = before.revision or "none"
         after_rev = after.revision or "none"

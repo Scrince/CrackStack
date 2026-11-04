@@ -25,3 +25,21 @@ def test_backend_auto_selects_only_discovered_gguf(monkeypatch, tmp_path):
 
     assert isinstance(backend, GGUFBackend)
     assert backend.model_path == models / "only.gguf"
+
+
+
+def test_transformers_preserves_assistant_text_in_generated_answer(tmp_path):
+    from harness.backends.base import GenerateConfig
+    from harness.backends.transformers_backend import TransformersBackend
+
+    backend = TransformersBackend(tmp_path / "model")
+    backend._pipeline = lambda prompt, **kwargs: [
+        {"generated_text": prompt + "The literal assistant: appears in this answer."}
+    ]
+
+    response = backend.generate(
+        [{"role": "user", "content": "say something"}],
+        GenerateConfig(max_tokens=32, temperature=0),
+    )
+
+    assert response.text == "The literal assistant: appears in this answer."

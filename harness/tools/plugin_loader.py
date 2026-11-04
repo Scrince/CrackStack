@@ -39,14 +39,21 @@ def load_generated_tools(
     registry: ToolRegistry,
     *,
     sandbox: bool = True,
+    trusted: bool = False,
 ) -> list[str]:
     """
     Load generated tool modules.
 
-    When sandbox is False, generated tools are not loaded (operators must not
-    execute unreviewed plugin code without the analysis gate).
+    Generated tools are skipped unless explicitly trusted and the sandbox
+    analysis gate is enabled. The analysis gate is not an OS-level sandbox.
     """
     loaded: list[str] = []
+    if not trusted:
+        LOGGER.warning(
+            "safety.self_modify is false: skipping generated tool execution from %s",
+            directory,
+        )
+        return loaded
     if not sandbox:
         LOGGER.warning(
             "safety.sandbox is false: skipping generated tool load from %s",

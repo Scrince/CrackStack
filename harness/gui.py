@@ -880,6 +880,10 @@ class HarnessWindow(QMainWindow):
             "Saved to config.toml as safety.dry_run when you Save & reload model."
         )
         self.self_modify_check = QCheckBox("Self-modify tools")
+        self.self_modify_check.setToolTip(
+            "Enabling this permits generated Python code to run in this process. "
+            "Static checks and smoke tests are not a security sandbox."
+        )
         body.addWidget(self.dry_run_check, 8, 0, 1, 2)
         body.addWidget(self.self_modify_check, 9, 0, 1, 2)
         settings_layout.addWidget(self.settings_body)
@@ -1741,6 +1745,7 @@ class HarnessWindow(QMainWindow):
             plugins_dir() / "generated_tools",
             registry,
             sandbox=config.safety.sandbox,
+            trusted=config.safety.self_modify,
         )
         register_self_modify_tools(registry, config)
         return registry

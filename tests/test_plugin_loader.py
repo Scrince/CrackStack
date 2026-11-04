@@ -25,7 +25,21 @@ def test_load_generated_tools_continues_after_broken_module(tmp_path):
     )
     registry = ToolRegistry()
 
-    loaded = load_generated_tools(tmp_path, registry)
+    loaded = load_generated_tools(tmp_path, registry, trusted=True)
 
     assert loaded == ["good.py"]
     assert registry.run("ok_tool", {}).content == "ok"
+
+
+
+def test_load_generated_tools_skips_untrusted_modules(tmp_path):
+    generated = tmp_path / "tool.py"
+    generated.write_text(
+        "def register(registry):\n    raise AssertionError('must not execute')\n",
+        encoding="utf-8",
+    )
+    registry = ToolRegistry()
+
+    loaded = load_generated_tools(tmp_path, registry)
+
+    assert loaded == []

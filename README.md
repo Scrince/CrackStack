@@ -217,7 +217,10 @@ sandbox = true
 Generated tools are written under `plugins/generated_tools/`, smoke-tested in a
 subprocess, then registered into the live tool registry. A generated module must
 define `register(registry)`. If it defines `smoke_test()`, that function is run
-before the tool is accepted.
+before the tool is accepted. Generated modules are skipped unless
+`safety.self_modify = true`; enabling it explicitly trusts that Python code to
+run inside the harness process. The AST checks and smoke test are not an OS
+security sandbox, so only enable this for code you trust.
 
 Each self-edit snapshots the harness with git before and after the change. To
 roll back recent self-modification commits:

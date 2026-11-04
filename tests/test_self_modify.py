@@ -111,3 +111,32 @@ def test_history_ignores_workspace_and_unrelated_harness_files(tmp_path):
     assert generated.read_text(encoding="utf-8") == "version = 1\n"
     assert workspace_file.read_text(encoding="utf-8") == "uncommitted user edit\n"
     assert unrelated_plugin.read_text(encoding="utf-8") == "uncommitted plugin edit\n"
+
+
+
+def test_self_modify_rolls_back_failed_registration(monkeypatch, tmp_path):
+    if not git_available():
+        return
+    monkeypatch.setenv("CRACKSTACK_ROOT", str(tmp_path))
+    registry = ToolRegistry()
+    tools = SelfModifyTools(make_config(), registry)
+    source = '''
+def register(registry):
+    registry.register(
+        "partial_tool",
+        "Temporary tool.",
+        {"type": "object", "properties": {}},
+        lambda: "unexpected",
+    )
+    raise RuntimeError("registration failed")
+'''.lstrip()
+
+    try:
+        tools.install_tool_module("broken_registration", source)
+    except RuntimeError as exc:
+        assert "registration failed" in str(exc)
+    else:
+        raise AssertionError("failed registration should fail installation")
+
+    assert registry.get("partial_tool") is None
+    assert not (tmp_path / "plugins" / "generated_tools" / "broken_registration.py").exists()

@@ -31,14 +31,17 @@ class TransformersBackend(ModelBackend):
         if self._pipeline is None:
             self.load()
         assert self._pipeline is not None
+        prompt = self._prompt(messages)
         result = self._pipeline(
-            self._prompt(messages),
+            prompt,
             max_new_tokens=config.max_tokens,
             temperature=config.temperature,
             do_sample=config.temperature > 0,
         )
-        text = result[0]["generated_text"].split("assistant:", maxsplit=-1)[-1].strip()
-        return BackendResponse(text=text, finish_reason=None)
+        text = result[0]["generated_text"]
+        if text.startswith(prompt):
+            text = text[len(prompt) :]
+        return BackendResponse(text=text.strip(), finish_reason=None)
 
     def stream(self, messages: Sequence[Message], config: GenerateConfig) -> Iterable[str]:
         yield self.generate(messages, config).text

@@ -37,6 +37,7 @@ def _tool_registry(config) -> ToolRegistry:
         plugins_dir() / "generated_tools",
         registry,
         sandbox=config.safety.sandbox,
+        trusted=config.safety.self_modify,
     )
     register_self_modify_tools(registry, config)
     return registry
