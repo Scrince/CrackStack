@@ -1,0 +1,72 @@
+CrackStack production tree
+=========================
+
+Repository root
+├── README.md                         User setup, configuration, and operation guide
+├── SECURITY.md                       Security reporting and user guidance
+├── THREAT_MODEL.md                   Trust boundaries and security limitations
+├── config.toml                       Runtime defaults for model, workspace, and safety
+├── pyproject.toml                    Python package metadata and CLI registration
+├── run.ps1                           Windows portable launcher
+├── run.bat                           Windows command prompt launcher
+├── run.sh                            macOS/Linux portable launcher
+├── CrackStack-Qwen-Coder.exe         Windows GUI launcher
+├── harness/                          Application source of truth
+│   ├── cli.py                        CLI entry point and commands
+│   ├── gui.py                        PySide6 desktop application
+│   ├── config*.py, paths.py, models.py, doctor.py
+│   │                                  Runtime configuration, path handling, model discovery, diagnostics
+│   ├── backends/                     GGUF and Transformers model backends
+│   ├── core/                         Agent loop, context management, tool-call handling
+│   ├── sandbox/                      Sandboxed command execution
+│   ├── storage/                      Audit, session, history, and tool-call persistence
+│   └── tools/                        Filesystem, packaging, plugin, and self-modification tools
+├── scripts/
+│   ├── crackstack_harness_entry.py   Frozen CLI/GUI executable entry point
+│   └── crackstack_harness_gui_entry.py
+│                                      Frozen GUI executable entry point
+├── runtime/
+│   ├── python/windows-x64/           Bundled portable CPython and installed Windows runtime dependencies
+│   └── site-packages/{windows-x64,macos-arm64,linux-x64}/
+│                                      Platform overlays for optional runtime packages, when populated
+├── models/                           User-supplied local model weights (not part of release source)
+├── workspace/                        Default application workspace and tool sandbox
+├── plugins/                           Optional/generated application plugins
+├── docs/
+│   ├── DISK_FOOTPRINT.md             Installed runtime and cleanup guidance
+│   ├── WINDOWS_INSTALLER.md          Installer download and verification instructions
+│   ├── Release_v0.1.0.txt             User-facing release notes
+│   ├── SHA256SUMS                     Release artifact checksum manifest
+│   ├── SHA256SUMS.asc                 Detached signature for checksum manifest
+│   ├── WINDOWS_INSTALLER.md.asc       Detached signature for installer instructions
+│   ├── CrackStack_Release_Signing_2026_pubkey.asc
+│   │                                  Public release verification key
+│   └── CrackStack_Local_Code_Signing_2026.cer
+│                                      Local Windows code-signing certificate
+├── installer/CrackStack.iss           Windows installer definition
+├── release/windows/
+│   ├── CrackStack-Setup-0.1.0.exe    Windows installer package
+│   ├── CrackStack-Setup-0.1.0.exe.asc Detached installer signature
+│   └── SHA256SUMS{,.asc}              Installer checksum manifest and signature
+└── releases/
+    ├── windows/                       Frozen Windows CLI and GUI binaries with detached signatures
+    ├── linux-x64/                     Frozen Linux CLI and GUI binaries with detached signatures
+    ├── macos-arm64/                   Frozen macOS CLI and GUI binaries with detached signatures
+    └── crackstack-harness-0.1.0-*.zip Release packages (Windows portable, Linux, macOS, and source)
+
+Production notes
+----------------
+
+The maintainable production source is `harness/`, launched in portable mode by
+the root `run.*` scripts with configuration from `config.toml`. The checked-in
+Windows Python runtime is an installed production dependency bundle; it is not
+a build cache. The `releases/` executables are frozen copies built from the
+Python entry points under `scripts/` using PyInstaller. Platform release ZIPs
+package the corresponding builds; the Windows setup executable is assembled
+from the frozen Windows GUI and CLI by `installer/CrackStack.iss` (Inno Setup).
+
+The checked-in portable Python runtime exists for Windows x64. Linux x64 and
+macOS arm64 have frozen release artifacts and ZIP packages, but no bundled
+Python interpreter in this tree. Model weights are supplied separately under
+`models/`; they are not included in the release source/checksum boundary.
+
